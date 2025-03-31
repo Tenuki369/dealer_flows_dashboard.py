@@ -11,8 +11,8 @@ st.title("🧠 Options Dealer Flow Dashboard")
 
 uploaded_file = st.file_uploader("Upload parsed_opsdash.xlsx", type=["xlsx"])
 
-# 🔁 LIVE OneDrive link for gamma history
-GAMMA_CSV_URL = "https://YOUR-DIRECT-LINK-HERE.csv?download=1"
+# 🔁 Direct link to your OneDrive-hosted gamma history CSV
+GAMMA_CSV_URL = "https://onedrive.live.com/download?resid=REPLACE_ME"
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
@@ -68,9 +68,9 @@ if uploaded_file:
         try:
             response = requests.get(GAMMA_CSV_URL)
             response.raise_for_status()
-            csv_text = StringIO(response.text)
-            df_hist = pd.read_csv(csv_text)
+            df_hist = pd.read_csv(StringIO(response.text))
             df_hist["Timestamp"] = pd.to_datetime(df_hist["Timestamp"])
+
             pivoted = df_hist.pivot(index="Timestamp", columns="Strike", values="Gamma Exposure")
             Z = pivoted.values
             X = pivoted.columns
