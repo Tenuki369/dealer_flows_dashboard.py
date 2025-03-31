@@ -11,8 +11,8 @@ st.title("🧠 Options Dealer Flow Dashboard")
 
 uploaded_file = st.file_uploader("Upload parsed_opsdash.xlsx", type=["xlsx"])
 
-# 🔁 Add your direct OneDrive CSV link here
-GAMMA_CSV_URL = "https://your-direct-link-here.csv?download=1"
+# 🔁 LIVE OneDrive link for gamma history
+GAMMA_CSV_URL = "https://YOUR-DIRECT-LINK-HERE.csv?download=1"
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
@@ -37,7 +37,6 @@ if uploaded_file:
     flip_row = grouped[grouped["Gamma Sign"] != grouped["Gamma Sign"].shift(1)]
     flip_zone = flip_row["Strike"].iloc[0] if not flip_row.empty else "N/A"
 
-    # Tabs
     tab1, tab2, tab3, tab4 = st.tabs(["Gamma Heatmap", "Breakdown", "Charm View", "Gamma Terrain 3D"])
 
     with tab1:
@@ -59,7 +58,7 @@ if uploaded_file:
         st.plotly_chart(fig2, use_container_width=True)
 
     with tab3:
-        st.markdown("#### Charm View (Experimental)")
+        st.markdown("#### Charm View")
         df["Charm"] = df["Delta Exposure"] / df["Strike"]
         fig3 = px.density_heatmap(df, x="Strike", y="Charm", color_continuous_scale="RdBu", title="Charm Intensity")
         st.plotly_chart(fig3, use_container_width=True)
@@ -68,6 +67,7 @@ if uploaded_file:
         st.markdown("#### Gamma Terrain (3D)")
         try:
             response = requests.get(GAMMA_CSV_URL)
+            response.raise_for_status()
             csv_text = StringIO(response.text)
             df_hist = pd.read_csv(csv_text)
             df_hist["Timestamp"] = pd.to_datetime(df_hist["Timestamp"])
