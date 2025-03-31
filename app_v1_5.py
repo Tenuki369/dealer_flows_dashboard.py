@@ -12,7 +12,7 @@ st.title("🧠 Options Dealer Flow Dashboard")
 uploaded_file = st.file_uploader("Upload parsed_opsdash.xlsx", type=["xlsx"])
 
 # ✅ Plug in your OneDrive direct CSV link here
-GAMMA_CSV_URL = "https://onedrive.live.com/download?resid=REPLACE_WITH_YOUR_LINK"
+GAMMA_CSV_URL = "https://1drv.ms/x/c/7c01f62799376338/Efu7qf21l8dMvomNtN0zN6gBDleVxQQdvHLXo-MWDUdb7g?e=mc2Po2"
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
