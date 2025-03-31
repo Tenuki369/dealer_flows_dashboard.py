@@ -2,13 +2,17 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import requests
+from io import StringIO
 from datetime import datetime
 
 st.set_page_config(layout="wide", page_title="Options Dashboard v1.5")
-
 st.title("🧠 Options Dealer Flow Dashboard")
 
 uploaded_file = st.file_uploader("Upload parsed_opsdash.xlsx", type=["xlsx"])
+
+# 🔁 Add your direct OneDrive CSV link here
+GAMMA_CSV_URL = "https://your-direct-link-here.csv?download=1"
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
@@ -28,7 +32,6 @@ if uploaded_file:
         expiry_dt = pd.to_datetime(expiry_choice)
         df = df[df["Expiry"] == expiry_dt]
 
-    # Compute gamma flip zone
     grouped = df.groupby("Strike")[["Gamma Exposure", "Delta Exposure"]].sum().reset_index()
     grouped["Gamma Sign"] = grouped["Gamma Exposure"].apply(lambda x: "Positive" if x >= 0 else "Negative")
     flip_row = grouped[grouped["Gamma Sign"] != grouped["Gamma Sign"].shift(1)]
@@ -63,9 +66,10 @@ if uploaded_file:
 
     with tab4:
         st.markdown("#### Gamma Terrain (3D)")
-
         try:
-            df_hist = pd.read_csv("gamma_history.csv")
+            response = requests.get(GAMMA_CSV_URL)
+            csv_text = StringIO(response.text)
+            df_hist = pd.read_csv(csv_text)
             df_hist["Timestamp"] = pd.to_datetime(df_hist["Timestamp"])
             pivoted = df_hist.pivot(index="Timestamp", columns="Strike", values="Gamma Exposure")
             Z = pivoted.values
@@ -107,4 +111,3 @@ if uploaded_file:
 
 else:
     st.info("Upload the `parsed_opsdash.xlsx` file to begin.")
-
